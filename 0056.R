@@ -30,27 +30,30 @@ str(etf56)
 
 #檢查是否有na值
 sum(is.na(etf56$close))
+
 # convert to time series data
 # library(lubridate)
 # etf50.xts <- xts(etf50$tw50, order.by = ymd(as.character(etf50$date)))
-etf56.xts <- xts(etf56$tw56, order.by = as.Date(as.character(etf56$date), format = "%Y%m%d"))
+
+#轉換為時間序列資料
+etf56.xts <- xts(etf56$close, order.by = as.Date(as.character(etf56$date), format = "%Y%m%d"))
 head(etf56.xts)
-colnames(etf56.xts) <- 'tw56'
+colnames(etf56.xts) <- 'close'
 head(etf56.xts)
 #
 data <- new.env()
 # Three imputs that you have to provide for backtesting:
 # 1. prices; 2. weight; 3. execution.price
-data$prices <- etf56.xts
+data$prices = data$weight = data$execution.price = etf56.xts
 data$weight <- data$prices * NA
 data$weight[] = 1
-data$execution.price <- data$prices
+#data$execution.price <- data$prices
 data$execution.price[] <- NA
 names(data)
-# Buy & Hold 
+# Buy & Hold  買進持有
 models <- list()
 models$buy.hold = bt.run(data) 
-
+tail(models$buy.hold$equity)
 # you may turn off the timezone error message for just now
 # options('xts_check_TZ'=FALSE)
 
@@ -58,7 +61,7 @@ models$buy.hold = bt.run(data)
 # sma = bt.apply(data, function(x) { SMA((x), 200) }) 
 # md: days of moving average
 # one more imput you have to provide: symbolnames
-md = 50
+md = 10
 sma = SMA(data$prices, md)
 head(sma, md)
 head(data$prices, md)
